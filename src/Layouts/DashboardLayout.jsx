@@ -1,5 +1,5 @@
 import React from "react";
-import { Link, Outlet, useLocation } from "react-router-dom";
+import { Link, Outlet, useLocation, Navigate } from "react-router-dom";
 import { TbLayoutDashboardFilled } from "react-icons/tb";
 import { FaInfo } from "react-icons/fa";
 import { BsTools } from "react-icons/bs";
@@ -9,6 +9,7 @@ import { MdOutlineContactMail } from "react-icons/md";
 import { IoSettingsOutline } from "react-icons/io5";
 import { TbUserScreen } from "react-icons/tb";
 import { useAuth } from "../Context/AuthContext";
+import Logo from "../Components/Logo";
 
 function DashboardLayout() {
   const Links = [
@@ -23,18 +24,19 @@ function DashboardLayout() {
   ];
   const location = useLocation();
 
-  const { user } = useAuth();
+  const auth = useAuth();
 
-  if (!user) {
+  // Check if auth context is loaded and user is authenticated
+  if (!auth || !auth.user) {
     return <Navigate to="/login" replace />;
   }
+
+  const { user } = auth;
 
   return (
     <div className="max-w-screen max-h-screen bg-gray-100 flex gap-8">
       <aside className="w-62.5 max-h-screen bg-white text-gray-700 p-4">
-        <h2 className="font-light text-xl ">
-          <span className="font-bold">Porto</span>Conf
-        </h2>
+        <Logo />
         <nav className="mt-10">
           <ul>
             {Links.map((link) => (
@@ -56,7 +58,7 @@ function DashboardLayout() {
           </ul>
         </nav>
       </aside>
-      <main className="p-4 max-h-screen flex-1 overflow-y-auto">
+      <main className="flex-1 overflow-auto p-4">
         <Outlet />
       </main>
     </div>
