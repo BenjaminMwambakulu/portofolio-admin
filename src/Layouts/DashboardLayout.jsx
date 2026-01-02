@@ -8,6 +8,7 @@ import { IoDocumentTextOutline } from "react-icons/io5";
 import { MdOutlineContactMail } from "react-icons/md";
 import { IoSettingsOutline } from "react-icons/io5";
 import { TbUserScreen } from "react-icons/tb";
+import { useAuth } from "../Context/AuthContext";
 
 function DashboardLayout() {
   const Links = [
@@ -22,9 +23,15 @@ function DashboardLayout() {
   ];
   const location = useLocation();
 
+  const { user } = useAuth();
+
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
+
   return (
-    <div className="max-w-screen bg-gray-100 flex gap-8">
-      <aside className="w-62.5 min-h-screen bg-white text-gray-700 p-4">
+    <div className="max-w-screen max-h-screen bg-gray-100 flex gap-8">
+      <aside className="w-62.5 max-h-screen bg-white text-gray-700 p-4">
         <h2 className="font-light text-xl ">
           <span className="font-bold">Porto</span>Conf
         </h2>
@@ -49,7 +56,7 @@ function DashboardLayout() {
           </ul>
         </nav>
       </aside>
-      <main className="p-4">
+      <main className="p-4 max-h-screen flex-1 overflow-y-auto">
         <Outlet />
       </main>
     </div>
