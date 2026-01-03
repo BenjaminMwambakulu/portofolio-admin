@@ -7,6 +7,7 @@ import HeroSection from "./Pages/HeroSection";
 import LoginPage from "./Pages/Auth/LoginPage";
 import SignupPage from "./Pages/Auth/SignupPage";
 import AboutSection from "./Pages/AboutSection";
+import SkillsSection from "./Pages/SkillsSection";
 
 export default function App() {
   return (
@@ -19,6 +20,7 @@ export default function App() {
             <Route path="/" element={<Dashboard />} />
             <Route path="/hero" element={<HeroSection />} />
             <Route path="/about" element={<AboutSection />} />
+            <Route path="/skills" element={<SkillsSection />} />
           </Route>
         </Routes>
       </AuthProvider>
