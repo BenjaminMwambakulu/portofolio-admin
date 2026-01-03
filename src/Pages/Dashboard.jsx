@@ -14,6 +14,29 @@ import { getDashboardData, getRecentActivities } from "../Services/DashboardServ
 import { getUserProfile } from "../Services/ProfileService";
 import { auth } from "../Config/firebase";
 import { onAuthStateChanged } from "firebase/auth";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+  Filler,
+} from 'chart.js';
+import { Line } from 'react-chartjs-2';
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+  Filler
+);
 
 function Dashboard() {
   const [dashboardData, setDashboardData] = React.useState({
@@ -130,6 +153,45 @@ function Dashboard() {
       color: "bg-emerald-50",
     },
   ];
+  
+  const chartData = {
+    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
+    datasets: [
+      {
+        label: 'Profile Views',
+        data: [65, 59, 80, 81, 56, 55, 40],
+        fill: true,
+        backgroundColor: 'rgba(59, 130, 246, 0.2)', // Blue-500 equivalent with opacity
+        borderColor: 'rgb(59, 130, 246)', // Blue-500
+        tension: 0.4,
+      },
+      {
+         label: 'Projects',
+         data: [2, 1, 3, 2, 4, 2, 3],
+         borderColor: 'rgb(16, 185, 129)', // Green-500
+         backgroundColor: 'rgba(16, 185, 129, 0.2)',
+         tension: 0.4,
+      }
+    ],
+  };
+
+  const chartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: 'top',
+      },
+      title: {
+        display: false,
+      },
+    },
+    scales: {
+        y: {
+            beginAtZero: true
+        }
+    }
+  };
 
   return (
     <div className="min-h-screen p-4 md:p-6">
@@ -214,16 +276,8 @@ function Dashboard() {
           </div>
 
           {/* Chart Placeholder */}
-          <div className="h-64 bg-linear-to-r from-blue-50 to-indigo-50 rounded-lg flex items-center justify-center">
-            <div className="text-center">
-              <FaChartLine size={48} className="text-blue-400 mx-auto mb-4" />
-              <p className="text-gray-600 font-medium">
-                Interactive Chart Area
-              </p>
-              <p className="text-gray-500 text-sm mt-1">
-                Monthly performance visualization
-              </p>
-            </div>
+          <div className="h-64 bg-white rounded-lg flex items-center justify-center border border-gray-50 p-2">
+            <Line options={chartOptions} data={chartData} />
           </div>
 
           <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
