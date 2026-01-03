@@ -11,6 +11,9 @@ import {
   FaArrowDown,
 } from "react-icons/fa";
 import { getDashboardData, getRecentActivities } from "../Services/DashboardService";
+import { getUserProfile } from "../Services/ProfileService";
+import { auth } from "../Config/firebase";
+import { onAuthStateChanged } from "firebase/auth";
 
 function Dashboard() {
   const [dashboardData, setDashboardData] = React.useState({
@@ -19,10 +22,15 @@ function Dashboard() {
     profileViews: 0,
   });
   const [recentActivities, setRecentActivities] = React.useState([]);
+  const [userProfile, setUserProfile] = React.useState({
+    username: "",
+    profileUrl: "",
+    email: ""
+  });
   const [loading, setLoading] = React.useState(true);
 
   React.useEffect(() => {
-    const fetchData = async () => {
+    const fetchDashboardContent = async () => {
       try {
         const [dashboardResult, activitiesResult] = await Promise.all([
           getDashboardData(),
@@ -43,7 +51,25 @@ function Dashboard() {
       }
     };
 
-    fetchData();
+    fetchDashboardContent();
+
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        const profileResult = await getUserProfile(user.uid);
+        if (profileResult.success) {
+          setUserProfile(profileResult.data);
+        } else {
+             // Fallback if profile doc doesn't validly exist yet but we have auth user
+             setUserProfile({
+                 username: user.displayName || user.email?.split('@')[0] || "User",
+                 profileUrl: user.photoURL || "",
+                 email: user.email
+             });
+        }
+      }
+    });
+
+    return () => unsubscribe();
   }, []);
 
   const formatTimeAgo = (timestamp) => {
@@ -115,18 +141,28 @@ function Dashboard() {
           </h1>
           <p className="mt-2 text-gray-600">
             Welcome back,{" "}
-            <span className="font-semibold text-blue-600">Username</span>
+            <span className="font-semibold text-blue-600">
+              {userProfile.username || "User"}
+            </span>
           </p>
           <p className="text-gray-500 text-sm mt-1">
             Here is a quick overview of your portfolio statistics.
           </p>
         </div>
         <div className="mt-4 md:mt-0 flex items-center space-x-3">
-          <div className="flex items-center justify-center w-10 h-10 rounded-full bg-blue-100 text-blue-600">
-            <FaUser size={18} />
-          </div>
+          {userProfile.profileUrl ? (
+            <img 
+               src={userProfile.profileUrl} 
+               alt="Profile" 
+               className="w-10 h-10 rounded-full object-cover border-2 border-blue-100"
+            />
+          ) : (
+            <div className="flex items-center justify-center w-10 h-10 rounded-full bg-blue-100 text-blue-600">
+              <FaUser size={18} />
+            </div>
+          )}
           <div>
-            <p className="font-medium">Username</p>
+            <p className="font-medium">{userProfile.username || "User"}</p>
           </div>
         </div>
       </div>
