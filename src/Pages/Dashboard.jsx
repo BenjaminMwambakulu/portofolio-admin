@@ -10,21 +10,31 @@ import {
   FaArrowUp,
   FaArrowDown,
 } from "react-icons/fa";
-import { getDashboardData } from "../Services/DashboardService";
+import { getDashboardData, getRecentActivities } from "../Services/DashboardService";
 
 function Dashboard() {
   const [dashboardData, setDashboardData] = React.useState({
     totalProjects: 0,
     totalSkills: 0,
+    profileViews: 0,
   });
+  const [recentActivities, setRecentActivities] = React.useState([]);
   const [loading, setLoading] = React.useState(true);
 
   React.useEffect(() => {
-    const fetchDashboardData = async () => {
+    const fetchData = async () => {
       try {
-        const result = await getDashboardData();
-        if (result.success) {
-          setDashboardData(result.data);
+        const [dashboardResult, activitiesResult] = await Promise.all([
+          getDashboardData(),
+          getRecentActivities(),
+        ]);
+
+        if (dashboardResult.success) {
+          setDashboardData(dashboardResult.data);
+        }
+
+        if (activitiesResult.success) {
+          setRecentActivities(activitiesResult.data);
         }
       } catch (error) {
         console.error("Error loading dashboard data:", error);
@@ -33,8 +43,24 @@ function Dashboard() {
       }
     };
 
-    fetchDashboardData();
+    fetchData();
   }, []);
+
+  const formatTimeAgo = (timestamp) => {
+    if (!timestamp) return "Just now";
+    // Handle Firestore Timestamp or JS Date
+    const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+    const now = new Date();
+    const diffInSeconds = Math.floor((now - date) / 1000);
+
+    if (diffInSeconds < 60) return "Just now";
+    const minutes = Math.floor(diffInSeconds / 60);
+    if (minutes < 60) return `${minutes} min ago`;
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return `${hours} hours ago`;
+    const days = Math.floor(hours / 24);
+    return `${days} days ago`;
+  };
 
   const stats = [
     {
@@ -63,7 +89,7 @@ function Dashboard() {
     },
     {
       title: "Profile Views",
-      value: "1,234",
+      value: loading ? "..." : (dashboardData.profileViews || 0).toLocaleString(),
       change: "+24.7%",
       isPositive: true,
       icon: <FaEye className="text-amber-500" size={24} />,
@@ -77,17 +103,6 @@ function Dashboard() {
       icon: <FaChartLine className="text-emerald-500" size={24} />,
       color: "bg-emerald-50",
     },
-  ];
-
-  const recentActivities = [
-    { id: 1, activity: "Updated React project", time: "2 hours ago" },
-    { id: 2, activity: "Added new skill: TypeScript", time: "1 day ago" },
-    {
-      id: 3,
-      activity: "Received project milestone payment",
-      time: "2 days ago",
-    },
-    { id: 4, activity: "Profile viewed by 5 recruiters", time: "3 days ago" },
   ];
 
   return (
@@ -203,22 +218,28 @@ function Dashboard() {
           </div>
 
           <div className="space-y-4">
-            {recentActivities.map((activity) => (
-              <div
-                key={activity.id}
-                className="flex items-start space-x-3 p-3 hover:bg-gray-50 rounded-lg transition-colors duration-200"
-              >
-                <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center shrink-0">
-                  <div className="w-2 h-2 rounded-full bg-blue-500"></div>
+            {loading ? (
+               <p className="text-gray-500 text-sm">Loading activities...</p>
+            ) : recentActivities.length > 0 ? (
+              recentActivities.map((activity) => (
+                <div
+                  key={activity.id}
+                  className="flex items-start space-x-3 p-3 hover:bg-gray-50 rounded-lg transition-colors duration-200"
+                >
+                  <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center shrink-0">
+                    <div className="w-2 h-2 rounded-full bg-blue-500"></div>
+                  </div>
+                  <div className="flex-1">
+                    <p className="font-medium text-gray-900">
+                      {activity.activity}
+                    </p>
+                    <p className="text-sm text-gray-500">{formatTimeAgo(activity.timeRaw)}</p>
+                  </div>
                 </div>
-                <div className="flex-1">
-                  <p className="font-medium text-gray-900">
-                    {activity.activity}
-                  </p>
-                  <p className="text-sm text-gray-500">{activity.time}</p>
-                </div>
-              </div>
-            ))}
+              ))
+            ) : (
+               <p className="text-gray-500 text-sm">No recent activities.</p>
+            )}
           </div>
 
           <div className="mt-6 pt-6 border-t border-gray-100">

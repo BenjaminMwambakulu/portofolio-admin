@@ -1,5 +1,6 @@
 import { addDoc, collection, serverTimestamp, getDocs, query, orderBy, limit } from "firebase/firestore";
 import { db } from "../Config/firebase";
+import { logActivity } from "./ActivityService";
 
 export const saveDocumentsSection = async (documentsSection) => {
   try {
@@ -11,6 +12,8 @@ export const saveDocumentsSection = async (documentsSection) => {
       updatedAt: serverTimestamp(),
     });
 
+    await logActivity("Updated Documents Section");
+
     return { success: true, id: docRef.id };
   } catch (error) {
     console.error("Error saving documents section:", error);
@@ -21,7 +24,7 @@ export const saveDocumentsSection = async (documentsSection) => {
 export const getDocumentsSection = async () => {
   try {
     const documentsSectionRef = collection(db, "Sections", "documents", 'items');
-    
+
     // Query to get the most recent documents section document
     const q = query(documentsSectionRef, orderBy("updatedAt", "desc"), limit(1));
     const querySnapshot = await getDocs(q);
