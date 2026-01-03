@@ -1,20 +1,21 @@
 import React from "react";
-import HeroLayoutPicker from "../Components/Heropicker";
-import HeroPreviewContent from "../Components/HeroPreviewContent";
+import AboutLayoutPicker from "../Components/AboutLayoutPicker";
+import AboutPreviewContent from "../Components/AboutPreviewContent";
 import {
-  saveHeroSection,
-  getHeroSection,
-} from "../Services/HeroSectionService";
+  saveAboutSection,
+  getAboutSection,
+} from "../Services/AboutSectionService";
 import { saveFileToSupabase } from "../Services/saveFileToSup";
 
-function HeroSection() {
+function AboutSection() {
   const [selectedLayout, setSelectedLayout] = React.useState("layout1");
-  const [heroContent, setHeroContent] = React.useState({
+  const [aboutContent, setAboutContent] = React.useState({
     title: "",
     description: "",
   });
   const [image, setImage] = React.useState(null);
   const [imageUrl, setImageUrl] = React.useState(null);
+  const [showImage, setShowImage] = React.useState(true);
   const [loading, setLoading] = React.useState(false);
   const [loadingData, setLoadingData] = React.useState(true);
   const [error, setError] = React.useState(null);
@@ -22,21 +23,21 @@ function HeroSection() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setHeroContent((prevContent) => ({
+    setAboutContent((prevContent) => ({
       ...prevContent,
       [name]: value,
     }));
   };
 
-  // Fetch existing hero section data on component mount
+  // Fetch existing about section data on component mount
   React.useEffect(() => {
-    const fetchHeroSection = async () => {
+    const fetchAboutSection = async () => {
       setLoadingData(true);
       try {
-        const result = await getHeroSection();
+        const result = await getAboutSection();
         if (result.success && result.data) {
           const data = result.data;
-          setHeroContent({
+          setAboutContent({
             title: data.title || "",
             description: data.description || "",
           });
@@ -46,25 +47,29 @@ function HeroSection() {
           if (data.imageUrl) {
             setImageUrl(data.imageUrl);
           }
+          if (data.showImage !== undefined) {
+            setShowImage(data.showImage);
+          }
         }
       } catch (err) {
-        console.error("Error loading hero section:", err);
-        setError("Failed to load existing hero section data");
+        console.error("Error loading about section:", err);
+        setError("Failed to load existing about section data");
       } finally {
         setLoadingData(false);
       }
     };
 
-    fetchHeroSection();
+    fetchAboutSection();
   }, []);
 
   const handleReset = () => {
-    setHeroContent({
+    setAboutContent({
       title: "",
       description: "",
     });
     setImage(null);
     setImageUrl(null);
+    setShowImage(true);
     setError(null);
     setSuccess(false);
   };
@@ -80,7 +85,7 @@ function HeroSection() {
 
       // Upload image to Supabase storage if image exists
       if (image) {
-        const uploadResult = await saveFileToSupabase(image, "hero");
+        const uploadResult = await saveFileToSupabase(image, "about");
         if (!uploadResult.success) {
           setError(`Image upload failed: ${uploadResult.error}`);
           setLoading(false);
@@ -89,21 +94,22 @@ function HeroSection() {
         newImageUrl = uploadResult.url;
       }
 
-      // Prepare hero section data
+      // Prepare about section data
       // Use new image URL if uploaded, otherwise preserve existing imageUrl
       const finalImageUrl = newImageUrl || imageUrl;
-      const heroSectionData = {
-        title: heroContent.title,
-        description: heroContent.description,
+      const aboutSectionData = {
+        title: aboutContent.title,
+        description: aboutContent.description,
         layout: selectedLayout,
+        showImage: showImage,
         ...(finalImageUrl && { imageUrl: finalImageUrl }),
       };
 
-      // Save hero section to Firebase
-      const saveResult = await saveHeroSection(heroSectionData);
+      // Save about section to Firebase
+      const saveResult = await saveAboutSection(aboutSectionData);
 
       if (!saveResult.success) {
-        setError(`Failed to save hero section: ${saveResult.error}`);
+        setError(`Failed to save about section: ${saveResult.error}`);
         setLoading(false);
         return;
       }
@@ -126,13 +132,13 @@ function HeroSection() {
 
   return (
     <div className="min-h-screen p-4 md:p-6">
-      <h1 className="text-3xl font-bold text-gray-900">Hero Section</h1>
+      <h1 className="text-3xl font-bold text-gray-900">About Section</h1>
       <p className="mt-2 text-gray-500 text-sm">
-        This is the Hero Section page.
+        This is the About Section page.
       </p>
       {loadingData && (
         <div className="mt-4 p-3 bg-blue-100 border border-blue-400 text-blue-700 rounded">
-          Loading existing hero section data...
+          Loading existing about section data...
         </div>
       )}
       {error && (
@@ -142,7 +148,7 @@ function HeroSection() {
       )}
       {success && (
         <div className="mt-4 p-3 bg-green-100 border border-green-400 text-green-700 rounded">
-          Hero section saved successfully!
+          About section saved successfully!
         </div>
       )}
       <div className="flex flex-col md:flex-row gap-6 mt-8">
@@ -150,48 +156,62 @@ function HeroSection() {
         <div className="md:w-1/2">
           <h2 className="text-lg font-semibold mb-2">Editor</h2>
           <div className="border border-gray-300 rounded-lg p-4">
-            {/* Editor content would go here */}
             <form action="">
               <div className="mb-4">
                 <label
-                  htmlFor="hero-title"
+                  htmlFor="about-title"
                   className="block text-sm font-medium text-gray-700 mb-1"
                 >
-                  Hero Title
+                  About Title
                 </label>
                 <input
-                  value={heroContent.title}
+                  value={aboutContent.title}
                   onChange={handleChange}
                   name="title"
                   type="text"
-                  id="hero-title"
+                  id="about-title"
                   className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="Enter hero title"
+                  placeholder="Enter about title"
                 />
               </div>
               <div className="mb-4">
                 <label
-                  htmlFor="hero-subtitle"
+                  htmlFor="about-description"
                   className="block text-sm font-medium text-gray-700 mb-1"
                 >
-                  Subtitle
+                  About Description
                 </label>
                 <textarea
-                  value={heroContent.description}
+                  value={aboutContent.description}
                   onChange={handleChange}
                   name="description"
-                  id="hero-description"
+                  id="about-description"
                   className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 mt-2"
-                  placeholder="Enter hero description"
+                  placeholder="Enter about description"
                   rows={4}
                 ></textarea>
               </div>
+              {(selectedLayout === "layout1" || selectedLayout === "layout2") && (
+                <div className="mb-4">
+                  <label className="flex items-center">
+                    <input
+                      type="checkbox"
+                      checked={showImage}
+                      onChange={(e) => setShowImage(e.target.checked)}
+                      className="mr-2"
+                    />
+                    <span className="text-sm font-medium text-gray-700">
+                      Show Image
+                    </span>
+                  </label>
+                </div>
+              )}
               <div className="mb-4">
                 <label
-                  htmlFor="image"
+                  htmlFor="about-image"
                   className="block text-sm font-medium text-gray-700 mb-1"
                 >
-                  Hero Image
+                  About Image
                 </label>
                 <input
                   onChange={(e) => {
@@ -199,7 +219,7 @@ function HeroSection() {
                   }}
                   accept="image/*"
                   type="file"
-                  id="image"
+                  id="about-image"
                   className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
                 {imageUrl && !image && (
@@ -207,7 +227,7 @@ function HeroSection() {
                     <p className="text-sm text-gray-600 mb-2">Current image:</p>
                     <img
                       src={imageUrl}
-                      alt="Hero"
+                      alt="About"
                       className="max-w-xs h-auto rounded border border-gray-300"
                     />
                   </div>
@@ -237,16 +257,16 @@ function HeroSection() {
         <div className="md:w-1/2">
           <h2 className="text-lg font-semibold mb-2">Preview</h2>
           <div className="border border-gray-300 rounded-lg p-4">
-            {/* Preview content would go here */}
-            <HeroLayoutPicker
+            <AboutLayoutPicker
               selectedLayout={selectedLayout}
               setSelectedLayout={setSelectedLayout}
             />
-            <HeroPreviewContent
+            <AboutPreviewContent
               layout={selectedLayout}
-              heroContent={heroContent}
+              aboutContent={aboutContent}
               image={image}
               imageUrl={imageUrl}
+              showImage={showImage}
             />
           </div>
         </div>
@@ -255,4 +275,4 @@ function HeroSection() {
   );
 }
 
-export default HeroSection;
+export default AboutSection;
