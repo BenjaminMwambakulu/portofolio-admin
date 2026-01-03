@@ -9,14 +9,16 @@ import {
 function SkillsSection() {
   const [selectedLayout, setSelectedLayout] = React.useState("layout1");
   const [skillsData, setSkillsData] = React.useState([]);
-  const [newSkill, setNewSkill] = React.useState({ name: "", category: "Backend", iconPath: "" });
+  const [newSkill, setNewSkill] = React.useState({ name: "", category: "Backend", iconPath: "", experience: "" });
   const [editingIcon, setEditingIcon] = React.useState({});
+  const [editingExperience, setEditingExperience] = React.useState({});
   const [loading, setLoading] = React.useState(false);
   const [loadingData, setLoadingData] = React.useState(true);
   const [error, setError] = React.useState(null);
   const [success, setSuccess] = React.useState(false);
 
   const categories = ["Backend", "Frontend", "Mobile", "Database", "Tools", "Others"];
+  const experienceLevels = ["Beginner", "Intermediate", "Advanced"];
 
   // Fetch existing skills section data on component mount
   React.useEffect(() => {
@@ -55,10 +57,11 @@ function SkillsSection() {
       name: newSkill.name.trim(),
       category: newSkill.category === "Others" ? "Other" : (newSkill.category === "Tools" ? "Tool" : newSkill.category),
       iconPath: newSkill.iconPath.trim() || null,
+      experience: newSkill.experience || null,
     };
 
     setSkillsData([...skillsData, skillToAdd]);
-    setNewSkill({ name: "", category: "Backend", iconPath: "" });
+    setNewSkill({ name: "", category: "Backend", iconPath: "", experience: "" });
     setError(null);
   };
 
@@ -75,14 +78,28 @@ function SkillsSection() {
     });
   };
 
+  const handleUpdateSkillExperience = (skillId, experience) => {
+    setSkillsData(skillsData.map(skill => 
+      skill.id === skillId 
+        ? { ...skill, experience: experience || null }
+        : skill
+    ));
+    setEditingExperience(prev => {
+      const newState = { ...prev };
+      delete newState[skillId];
+      return newState;
+    });
+  };
+
   const handleDeleteSkill = (skillId) => {
     setSkillsData(skillsData.filter(skill => skill.id !== skillId));
   };
 
   const handleReset = () => {
     setSkillsData([]);
-    setNewSkill({ name: "", category: "Backend", iconPath: "" });
+    setNewSkill({ name: "", category: "Backend", iconPath: "", experience: "" });
     setEditingIcon({});
+    setEditingExperience({});
     setError(null);
     setSuccess(false);
   };
@@ -210,6 +227,27 @@ function SkillsSection() {
                 )}
               </div>
               <div className="mb-4">
+                <label
+                  htmlFor="skill-experience"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
+                  Experience Level (Optional)
+                </label>
+                <select
+                  value={newSkill.experience}
+                  onChange={(e) => setNewSkill({ ...newSkill, experience: e.target.value })}
+                  id="skill-experience"
+                  className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="">Select experience level</option>
+                  {experienceLevels.map((level) => (
+                    <option key={level} value={level}>
+                      {level}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="mb-4">
                 <button
                   type="button"
                   onClick={handleAddSkill}
@@ -248,6 +286,16 @@ function SkillsSection() {
                               <span className="text-sm text-gray-500 ml-2">
                                 ({skill.category === "Tool" ? "Tools" : skill.category === "Other" ? "Others" : skill.category})
                               </span>
+                              {skill.experience && (
+                                <span className={`text-xs ml-2 px-2 py-0.5 rounded font-semibold ${
+                                  skill.experience === "Beginner" ? "bg-green-100 text-green-700" :
+                                  skill.experience === "Intermediate" ? "bg-yellow-100 text-yellow-700" :
+                                  skill.experience === "Advanced" ? "bg-red-100 text-red-700" :
+                                  "bg-gray-100 text-gray-700"
+                                }`}>
+                                  {skill.experience}
+                                </span>
+                              )}
                             </div>
                           </div>
                           <div className="flex items-center gap-2">
@@ -257,6 +305,13 @@ function SkillsSection() {
                               className="text-blue-500 hover:text-blue-700 text-sm"
                             >
                               {editingIcon[skill.id] ? "Cancel" : (skill.iconPath ? "Edit Icon" : "Add Icon")}
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setEditingExperience(prev => ({ ...prev, [skill.id]: !prev[skill.id] }))}
+                              className="text-purple-500 hover:text-purple-700 text-sm"
+                            >
+                              {editingExperience[skill.id] ? "Cancel" : (skill.experience ? "Edit Exp" : "Add Exp")}
                             </button>
                             <button
                               type="button"
@@ -283,6 +338,24 @@ function SkillsSection() {
                                 handleUpdateSkillIconPath(skill.id, e.target.value);
                               }}
                             />
+                          </div>
+                        )}
+                        {editingExperience[skill.id] && (
+                          <div className="flex items-center gap-2">
+                            <select
+                              defaultValue={skill.experience || ""}
+                              className="flex-1 border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                              onChange={(e) => {
+                                handleUpdateSkillExperience(skill.id, e.target.value);
+                              }}
+                            >
+                              <option value="">Select experience level</option>
+                              {experienceLevels.map((level) => (
+                                <option key={level} value={level}>
+                                  {level}
+                                </option>
+                              ))}
+                            </select>
                           </div>
                         )}
                       </div>

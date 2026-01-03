@@ -53,6 +53,16 @@ export default function SkillsPreviewContent({layout, skillsData = {}}) {
           />
         )}
         <span>{skill.name || skill}</span>
+        {skill.experience && (
+          <span className={`text-xs px-2 py-0.5 rounded font-semibold ${
+            skill.experience === "Beginner" ? "bg-green-500 text-white" :
+            skill.experience === "Intermediate" ? "bg-yellow-500 text-white" :
+            skill.experience === "Advanced" ? "bg-red-500 text-white" :
+            "bg-gray-500 text-white"
+          }`}>
+            {skill.experience}
+          </span>
+        )}
       </motion.li>
     ));
   };
@@ -145,6 +155,16 @@ export default function SkillsPreviewContent({layout, skillsData = {}}) {
                       />
                     )}
                     <span>{skill.name || skill}</span>
+                    {skill.experience && (
+                      <span className={`text-xs px-2 py-0.5 rounded font-semibold ${
+                        skill.experience === "Beginner" ? "bg-green-500 text-white" :
+                        skill.experience === "Intermediate" ? "bg-yellow-500 text-white" :
+                        skill.experience === "Advanced" ? "bg-red-500 text-white" :
+                        "bg-gray-500 text-white"
+                      }`}>
+                        {skill.experience}
+                      </span>
+                    )}
                   </li>
                 ))
               ) : (
@@ -176,6 +196,16 @@ export default function SkillsPreviewContent({layout, skillsData = {}}) {
                       />
                     )}
                     <span>{skill.name || skill}</span>
+                    {skill.experience && (
+                      <span className={`text-xs px-2 py-0.5 rounded font-semibold ${
+                        skill.experience === "Beginner" ? "bg-green-500 text-white" :
+                        skill.experience === "Intermediate" ? "bg-yellow-500 text-white" :
+                        skill.experience === "Advanced" ? "bg-red-500 text-white" :
+                        "bg-gray-500 text-white"
+                      }`}>
+                        {skill.experience}
+                      </span>
+                    )}
                   </li>
                 ))
               ) : (
