@@ -10,8 +10,32 @@ import {
   FaArrowUp,
   FaArrowDown,
 } from "react-icons/fa";
+import { getDashboardData } from "../Services/DashboardService";
 
 function Dashboard() {
+  const [dashboardData, setDashboardData] = React.useState({
+    totalProjects: 0,
+    totalSkills: 0,
+  });
+  const [loading, setLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        const result = await getDashboardData();
+        if (result.success) {
+          setDashboardData(result.data);
+        }
+      } catch (error) {
+        console.error("Error loading dashboard data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDashboardData();
+  }, []);
+
   const stats = [
     {
       title: "Total Balance",
@@ -23,7 +47,7 @@ function Dashboard() {
     },
     {
       title: "Projects Completed",
-      value: "15",
+      value: loading ? "..." : dashboardData.totalProjects.toString(),
       change: "+2 this month",
       isPositive: true,
       icon: <FaCheckCircle className="text-green-500" size={24} />,
@@ -31,7 +55,7 @@ function Dashboard() {
     },
     {
       title: "Total Skills",
-      value: "8",
+      value: loading ? "..." : dashboardData.totalSkills.toString(),
       change: "+3 new",
       isPositive: true,
       icon: <FaCogs className="text-purple-500" size={24} />,
