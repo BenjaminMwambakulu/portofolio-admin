@@ -1,8 +1,9 @@
 import React from 'react'
 
-export default function HeroPreviewContent({layout, heroContent, image}) {
+export default function HeroPreviewContent({layout, heroContent, image, imageUrl: dbImageUrl}) {
   const { title = "", description = "" } = heroContent || {};
-  const imageUrl = image ? URL.createObjectURL(image) : null;
+  // Prioritize new file selection over database URL
+  const imageUrl = image ? URL.createObjectURL(image) : dbImageUrl || null;
 
   const renderLayout = () => {
     switch(layout) {

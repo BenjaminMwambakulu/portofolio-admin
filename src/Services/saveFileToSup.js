@@ -2,41 +2,38 @@ import supabase from "../Config/supabase";
 
 export const saveFileToSupabase = async (file, fileType) => {
   try {
-    const [error, setError] = useState(null);
-    const [uploading, setUploading] = useState(false);
-    const [url, setUrl] = useState(null);
-
     if (!file) {
-      setError("No file selected");
-      return;
+      return { success: false, error: "No file selected" };
     }
 
     if (!fileType) {
-      setError("No file type selected");
-      return;
+      return { success: false, error: "No file type selected" };
     }
-    setUploading(true);
-    setError(null);
-    const { data, err } = await supabase.storage
+
+    // Generate unique filename to avoid overwrites
+    const timestamp = Date.now();
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${timestamp}_${Math.random().toString(36).substring(2, 9)}.${fileExt}`;
+    const filePath = `${fileType}/${fileName}`;
+
+    // Upload file to Supabase storage
+    const { data, error: uploadError } = await supabase.storage
       .from("portofolio")
-      .upload(`${fileType}/${file.name}`, file);
-    
-    // get public url
+      .upload(filePath, file);
+
+    if (uploadError) {
+      console.error("Error uploading file to Supabase:", uploadError);
+      return { success: false, error: uploadError.message };
+    }
+
+    // Get public URL
     const { data: { publicUrl } } = supabase.storage
       .from("portofolio")
-      .getPublicUrl(`${fileType}/${file.name}`);
-
-    if (err) {
-      setError(err.message);
-      return;
-    }
-    setUploading(false);
+      .getPublicUrl(filePath);
 
     return { success: true, url: publicUrl };
   } catch (error) {
     console.error("Error saving file to Supabase:", error);
-    setUploading(false);
-    setError(error.message);
     return { success: false, error: error.message };
   }
 };
