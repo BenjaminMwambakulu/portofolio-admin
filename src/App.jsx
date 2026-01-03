@@ -10,6 +10,7 @@ import AboutSection from "./Pages/AboutSection";
 import SkillsSection from "./Pages/SkillsSection";
 import ProjectsSection from "./Pages/ProjectsSection";
 import DocumentsSection from "./Pages/DocumentsSection";
+import ContactSection from "./Pages/ContactSection";
 
 export default function App() {
   return (
@@ -25,6 +26,7 @@ export default function App() {
             <Route path="/skills" element={<SkillsSection />} />
             <Route path="/projects" element={<ProjectsSection />} />
             <Route path="/resume" element={<DocumentsSection />} />
+            <Route path="/contact" element={<ContactSection />} />
           </Route>
         </Routes>
       </AuthProvider>

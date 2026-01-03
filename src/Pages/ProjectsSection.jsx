@@ -13,6 +13,7 @@ function ProjectsSection() {
   const [newProject, setNewProject] = React.useState({
     title: "",
     description: "",
+    projectType: "fullstack",
     images: [],
     imageUrls: [],
     technologies: [],
@@ -78,6 +79,7 @@ function ProjectsSection() {
       id: Date.now().toString(),
       title: newProject.title.trim(),
       description: newProject.description.trim() || null,
+      projectType: newProject.projectType || "fullstack",
       images: newProject.images || [],
       imageUrls: newProject.imageUrls || [],
       technologies: newProject.technologies.length > 0 ? newProject.technologies : null,
@@ -89,6 +91,7 @@ function ProjectsSection() {
     setNewProject({
       title: "",
       description: "",
+      projectType: "fullstack",
       images: [],
       imageUrls: [],
       technologies: [],
@@ -129,6 +132,7 @@ function ProjectsSection() {
     setNewProject({
       title: "",
       description: "",
+      projectType: "fullstack",
       images: [],
       imageUrls: [],
       technologies: [],
@@ -240,6 +244,26 @@ function ProjectsSection() {
                   className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="e.g., E-Commerce Platform"
                 />
+              </div>
+              <div className="mb-4">
+                <label
+                  htmlFor="project-type"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
+                  Project Type
+                </label>
+                <select
+                  value={newProject.projectType}
+                  onChange={(e) =>
+                    setNewProject({ ...newProject, projectType: e.target.value })
+                  }
+                  id="project-type"
+                  className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="fullstack">Fullstack</option>
+                  <option value="frontend">Frontend</option>
+                  <option value="backend">Backend</option>
+                </select>
               </div>
               <div className="mb-4">
                 <label
@@ -435,7 +459,18 @@ function ProjectsSection() {
                       >
                         <div className="flex items-center justify-between">
                           <div className="flex-1">
-                            <span className="font-medium">{project.title}</span>
+                            <div className="flex items-center gap-2">
+                              <span className="font-medium">{project.title}</span>
+                              {project.projectType && (
+                                <span className={`text-xs px-2 py-0.5 rounded font-semibold ${
+                                  project.projectType === "fullstack" ? "bg-purple-100 text-purple-700" :
+                                  project.projectType === "frontend" ? "bg-blue-100 text-blue-700" :
+                                  "bg-green-100 text-green-700"
+                                }`}>
+                                  {project.projectType.charAt(0).toUpperCase() + project.projectType.slice(1)}
+                                </span>
+                              )}
+                            </div>
                             {project.technologies && project.technologies.length > 0 && (
                               <div className="flex flex-wrap gap-1 mt-1">
                                 {project.technologies.slice(0, 3).map((tech, index) => (
@@ -487,6 +522,17 @@ function ProjectsSection() {
                                 handleUpdateProject(project.id, "title", e.target.value)
                               }
                             />
+                            <select
+                              defaultValue={project.projectType || "fullstack"}
+                              className="w-full border border-gray-300 rounded px-2 py-1"
+                              onChange={(e) =>
+                                handleUpdateProject(project.id, "projectType", e.target.value)
+                              }
+                            >
+                              <option value="fullstack">Fullstack</option>
+                              <option value="frontend">Frontend</option>
+                              <option value="backend">Backend</option>
+                            </select>
                             <input
                               type="url"
                               defaultValue={project.liveUrl || ""}
