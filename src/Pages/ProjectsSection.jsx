@@ -168,8 +168,9 @@ function ProjectsSection() {
               })
             );
             const validUrls = uploadedUrls.filter(url => url !== null);
-            // Merge with existing imageUrls and remove File objects
-            const allImageUrls = [...(project.imageUrls || []), ...validUrls];
+            // Merge with existing imageUrls (filtering out base64 previews) and remove File objects
+            const existingUrls = (project.imageUrls || []).filter(url => !url.startsWith('data:'));
+            const allImageUrls = [...existingUrls, ...validUrls];
             return { ...project, imageUrls: allImageUrls, images: [] };
           }
           return project;

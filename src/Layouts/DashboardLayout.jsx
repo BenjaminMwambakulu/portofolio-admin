@@ -5,7 +5,7 @@ import { FaInfo } from "react-icons/fa";
 import { BsTools } from "react-icons/bs";
 import { GrProjects } from "react-icons/gr";
 import { IoDocumentTextOutline } from "react-icons/io5";
-import { MdOutlineContactMail } from "react-icons/md";
+import { MdOutlineContactMail, MdMessage } from "react-icons/md";
 import { IoSettingsOutline } from "react-icons/io5";
 import { TbUserScreen } from "react-icons/tb";
 import { useAuth } from "../Context/AuthContext";
@@ -20,6 +20,7 @@ function DashboardLayout() {
     { name: "Projects", to: "/projects", icon: GrProjects },
     { name: "Resume", to: "/resume", icon: IoDocumentTextOutline },
     { name: "Contact", to: "/contact", icon: MdOutlineContactMail },
+    { name: "Messages", to: "/messages", icon: MdMessage },
     { name: "Settings", to: "/settings", icon: IoSettingsOutline },
   ];
   const location = useLocation();

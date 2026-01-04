@@ -11,6 +11,7 @@ import SkillsSection from "./Pages/SkillsSection";
 import ProjectsSection from "./Pages/ProjectsSection";
 import DocumentsSection from "./Pages/DocumentsSection";
 import ContactSection from "./Pages/ContactSection";
+import Messages from "./Pages/Messages";
 
 export default function App() {
   return (
@@ -27,6 +28,7 @@ export default function App() {
             <Route path="/projects" element={<ProjectsSection />} />
             <Route path="/resume" element={<DocumentsSection />} />
             <Route path="/contact" element={<ContactSection />} />
+            <Route path="/messages" element={<Messages />} />
           </Route>
         </Routes>
       </AuthProvider>
